@@ -1,0 +1,13 @@
+taskId,name,sprintName,complexity,sp,est,act,delay,team,exp,bugs,status,risk,riskScore
+T-301,Login Flow,Sprint 24,High,8,45,52,Yes,Alpha,Senior,1,Completed,High,80
+T-302,User Profile,Sprint 24,Medium,5,28,24,No,Beta,Intermediate,0,Completed,Low,10
+T-303,Reporting API,Sprint 24,High,13,70,85,Yes,Alpha,Senior,2,In Progress,High,75
+T-304,Dashboard Widgets,Sprint 24,Medium,5,30,32,No,Gamma,Junior,0,Completed,Medium,40
+T-305,Notifications,Sprint 24,Low,3,16,14,No,Beta,Intermediate,0,Completed,Low,5
+T-306,Search Optimization,Sprint 24,High,8,40,48,Yes,Delta,Senior,1,In Progress,High,65
+T-307,Payment Integration,Sprint 24,High,13,80,78,No,Alpha,Expert,3,Completed,Medium,50
+T-308,Settings Page,Sprint 24,Low,3,12,10,No,Gamma,Junior,0,Completed,Low,8
+T-309,Data Migration,Sprint 24,High,8,50,60,Yes,Delta,Senior,4,In Progress,High,85
+T-310,Email Templates,Sprint 24,Medium,5,26,24,No,Beta,Intermediate,0,Completed,Low,12
+T-311,Analytics Hook,Sprint 24,Medium,5,22,20,No,Alpha,Intermediate,0,Completed,Medium,35
+T-312,Accessibility Fixes,Sprint 24,Low,2,10,9,No,Gamma,Junior,0,Completed,Low,3

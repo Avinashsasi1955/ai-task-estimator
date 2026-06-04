@@ -1,0 +1,6 @@
+taskId,name,sprintName,complexity,sp,est,act,delay,team,exp,bugs,status,risk,riskScore
+T-231,Landing Page,Sprint 22,Low,3,14,12,No,Gamma,Junior,0,Completed,Low,5
+T-232,API Gateway,Sprint 22,High,13,78,82,Yes,Alpha,Senior,3,Completed,High,82
+T-233,User Settings,Sprint 22,Medium,5,26,24,No,Beta,Intermediate,0,Completed,Low,10
+T-234,Billing Flow,Sprint 22,High,8,48,50,No,Delta,Senior,1,Completed,Medium,55
+T-235,Docs Update,Sprint 22,Low,2,8,7,No,Gamma,Junior,0,Completed,Low,3

@@ -1,0 +1,6 @@
+taskId,name,sprintName,complexity,sp,est,act,delay,team,exp,bugs,status,risk,riskScore
+T-241,Auth Refactor,Sprint 23,High,8,42,40,No,Alpha,Senior,0,Completed,Medium,45
+T-242,Profile UI,Sprint 23,Medium,5,25,26,No,Beta,Intermediate,0,Completed,Low,12
+T-243,Reporting DB,Sprint 23,High,13,72,80,Yes,Delta,Senior,2,Completed,High,78
+T-244,Search API,Sprint 23,High,8,50,55,Yes,Alpha,Senior,1,In Progress,High,70
+T-245,Onboarding Flow,Sprint 23,Medium,5,30,28,No,Gamma,Junior,0,Completed,Low,15

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Estimator System</title>
+    <meta name="description" content="AI-Based Project Task Estimation System with ML predictions, risk detection, team recommendations, and sprint analytics.">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- ===================== LOGIN SCREEN ===================== -->
+        <div id="screen-login" class="screen active">
+            <div class="login-container">
+                <div class="login-card card">
+                    <div class="login-header">
+                        <div class="login-logo">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 17L12 22L22 17" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M2 12L12 17L22 12" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <h2>AI Task Estimation System</h2>
+                        <p class="text-small">Welcome back. Please login to continue.</p>
+                    </div>
+
+                    <form id="login-form" class="login-form" novalidate>
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="text" inputmode="email" id="login-email" class="input-field" placeholder="john.doe@company.com" autocomplete="off" value="avinashsasi6@gmail.com">
+                            <span class="error-message" id="email-error">Enter valid email</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="input-label">Password</label>
+                            <div style="position: relative;">
+                                <input type="password" id="login-password" class="input-field" placeholder="••••••••" style="padding-right: 40px;">
+                                <span class="input-icon-right" id="toggle-password" style="top: 10px;">👁️</span>
+                            </div>
+                        </div>
+
+                        <div class="login-actions">
+                            <button type="submit" class="btn btn-primary" id="login-btn" style="flex: 1;">Login</button>
+                            <button type="button" class="btn btn-secondary" id="forgot-btn">Forgot?</button>
+                        </div>
+                    </form>
+
+                    <div class="login-footer">
+                        <p class="text-small">Don't have access? Contact your administrator.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forgot Password Modal -->
+            <div class="modal-overlay" id="forgot-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3>Reset Password</h3>
+                        <button class="modal-close" id="close-forgot-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <label class="input-label">Email</label>
+                            <input type="email" id="reset-email" class="input-field" placeholder="john.doe@company.com">
+                        </div>
+                        <p id="reset-success-msg" style="color: var(--success-green); display: none; margin-top: 10px; font-size: 14px;">✓ Check your email for reset instructions.</p>
+                        <button class="btn btn-primary" id="send-reset-btn" style="width: 100%; margin-top: 16px;">Send Reset Link</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================== APP LAYOUT ===================== -->
+        <div id="app-layout" class="app-layout screen" style="display: none;">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M2 17L12 22L22 17" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M2 12L12 17L22 12" stroke="var(--primary-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <span class="sidebar-brand">AI Estimator</span>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-target="dashboard"><span>🏠</span> Dashboard</a>
+                    <a href="#" class="nav-item" data-target="upload"><span>📤</span> Upload</a>
+                    <a href="#" class="nav-item" data-target="prediction"><span>🤖</span> AI Predict</a>
+                    <a href="#" class="nav-item" data-target="risk"><span>⚠️</span> Risk</a>
+                    <a href="#" class="nav-item" data-target="team"><span>👥</span> Team</a>
+                    <a href="#" class="nav-item" data-target="reports"><span>📈</span> Reports</a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <a href="#" class="nav-item" data-target="settings"><span>⚙️</span> Settings</a>
+                </div>
+            </aside>
+
+            <!-- MAIN WRAPPER -->
+            <div class="main-wrapper">
+                <!-- TOPBAR -->
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <span class="badge badge-success">Sprint 3 Active</span>
+                        <span style="font-size:13px; color:var(--text-secondary); margin-left:12px;">Apr 14 – May 7, 2026</span>
+                    </div>
+                    <div class="topbar-right">
+                        <!-- Notification Bell -->
+                        <div style="position:relative;">
+                            <button class="btn-icon" id="notif-btn">🔔<span class="notification-dot" id="notif-count">3</span></button>
+                            <!-- Notification Panel -->
+                            <div id="notif-panel" class="notif-panel" style="display:none;">
+                                <div class="notif-header">
+                                    <span style="font-weight:700;">Notifications</span>
+                                    <button id="notif-clear-btn" style="font-size:12px; color:var(--primary-blue); background:none; border:none; cursor:pointer;">Clear All</button>
+                                </div>
+                                <div id="notif-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="profile-dropdown">
+                            <div class="profile-trigger">
+                                <div class="profile-info">
+                                    <span class="profile-name" id="user-greeting">Sarah Chen</span>
+                                    <span class="profile-role">Product Owner</span>
+                                </div>
+                                <div class="profile-avatar" id="user-avatar">SC</div>
+                                <span class="profile-arrow">▼</span>
+                            </div>
+                            <div class="dropdown-content">
+                                <a href="#" class="dropdown-item" id="settings-link">⚙️ Settings</a>
+                                <div class="dropdown-divider"></div>
+                                <a href="#" class="dropdown-item text-danger" id="logout-btn">🚪 Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- CONTENT VIEWS -->
+                <div class="main-content">
+
+                    <!-- ======== VIEW: DASHBOARD ======== -->
+                    <div id="view-dashboard" class="view active">
+                        <div class="page-header">
+                            <div>
+                                <h1 id="welcome-message">GOOD MORNING, Sarah!</h1>
+                                <p class="text-small">Here's your overview for Sprint 3 · Apr 14 – May 7, 2026</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-primary" onclick="window.navigateToView('upload')">Upload Data</button>
+                                <button class="btn btn-secondary" onclick="window.navigateToView('prediction')">Run Predictions</button>
+                            </div>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div class="kpi-grid">
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>ACTIVE SPRINTS</span><span>🔄</span></div>
+                                <div class="kpi-card-value">3</div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>TASKS AT RISK</span><span>⚠️</span></div>
+                                <div class="kpi-card-value">5 <span style="font-size:16px">🔴</span></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>AI ACCURACY</span><span>🤖</span></div>
+                                <div class="kpi-card-value">92% <span class="trend-up">↑ 12%</span></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>TEAMS AVAILABLE</span><span>👥</span></div>
+                                <div class="kpi-card-value">4</div>
+                            </div>
+                        </div>
+
+                        <!-- Chart -->
+                        <div class="dashboard-grid-2">
+                            <div class="card" style="grid-column: span 2;">
+                                <h3>Sprint Progress (Last 6 Sprints)</h3>
+                                <canvas id="sprintChart" height="80"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Risk & Team -->
+                        <div class="dashboard-grid-2" style="margin-top: 24px;">
+                            <div class="card">
+                                <h3>Risk Overview</h3>
+                                <div class="risk-stats">
+                                    <div class="risk-item" style="border-left: 4px solid var(--error-red);">
+                                        <span>High Risk</span><strong>5</strong>
+                                    </div>
+                                    <div class="risk-item" style="border-left: 4px solid var(--warning-yellow);">
+                                        <span>Medium Risk</span><strong>12</strong>
+                                    </div>
+                                    <div class="risk-item" style="border-left: 4px solid var(--success-green);">
+                                        <span>Low Risk</span><strong>23</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h3>Team Performance</h3>
+                                <div class="team-list" id="team-performance-list"></div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Tasks -->
+                        <div class="card" style="margin-top: 24px;">
+                            <h3>Recent Tasks - Sprint 3</h3>
+                            <div class="table-container mt-16">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task Name</th>
+                                            <th>Status</th>
+                                            <th>Risk</th>
+                                            <th>Team</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recent-tasks-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Sprint 3 Backlog Summary -->
+                        <div class="card" style="margin-top: 24px;">
+                            <h3>Sprint 3 Backlog Summary</h3>
+                            <div class="kpi-grid" style="margin-bottom:0; margin-top:16px;">
+                                <div class="card kpi-card" style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);">
+                                    <div class="kpi-card-header"><span>TOTAL STORIES</span><span>📋</span></div>
+                                    <div class="kpi-card-value">5</div>
+                                </div>
+                                <div class="card kpi-card" style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);">
+                                    <div class="kpi-card-header"><span>SHOULD HAVE</span><span>🟡</span></div>
+                                    <div class="kpi-card-value">3</div>
+                                </div>
+                                <div class="card kpi-card" style="background:linear-gradient(135deg,#F0F9FF,#E0F2FE);">
+                                    <div class="kpi-card-header"><span>COULD HAVE</span><span>🔵</span></div>
+                                    <div class="kpi-card-value">2</div>
+                                </div>
+                                <div class="card kpi-card" style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);">
+                                    <div class="kpi-card-header"><span>NOT STARTED</span><span>⏳</span></div>
+                                    <div class="kpi-card-value">100%</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: UPLOAD ======== -->
+                    <div id="view-upload" class="view" style="display: none;">
+                        <div class="page-header">
+                            <div>
+                                <h1>UPLOAD SPRINT DATA</h1>
+                                <p class="text-small">Upload CSV files containing your sprint histories.</p>
+                            </div>
+                            <button class="btn btn-secondary">Help <span class="icon">❓</span></button>
+                        </div>
+
+                        <div class="dashboard-grid-2">
+                            <!-- Upload Zone -->
+                            <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="upload-zone" id="upload-zone">
+                                    <div style="font-size: 32px; margin-bottom: 8px;">📤</div>
+                                    <h3>Drag & drop your CSV file here</h3>
+                                    <p class="text-small">or</p>
+                                    <button class="btn btn-secondary" style="margin-top: 8px;">Browse Files</button>
+                                    <p class="text-small" style="margin-top: 8px;">Supported: .csv only | Max size: 10MB</p>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span class="text-small">Template:</span>
+                                    <button class="btn btn-secondary btn-sm" id="download-template-btn">Download Sample CSV</button>
+                                </div>
+                            </div>
+
+                            <!-- Recent Uploads -->
+                            <div class="card">
+                                <h3>RECENT UPLOADS</h3>
+                                <div class="table-container mt-16">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>File Name</th>
+                                                <th>Date</th>
+                                                <th>Records</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><a href="#" class="sprint-file-link" data-sprint="sprint24.csv">sprint3_apr2026.csv</a></td>
+                                                <td>04/07/26</td><td>10</td><td>✅</td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#" class="sprint-file-link" data-sprint="sprint23.csv">sprint2_mar2026.csv</a></td>
+                                                <td>03/10/26</td><td>10</td><td>✅</td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#" class="sprint-file-link" data-sprint="sprint22.csv">sprint1_feb2026.csv</a></td>
+                                                <td>02/10/26</td><td>10</td><td>✅</td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#" class="sprint-file-link" data-sprint="sprint21.csv">sprint0_jan2026.csv</a></td>
+                                                <td>01/13/26</td><td>9</td><td>✅</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ML Model Training Status (Sprint 2 - US1) -->
+                        <div class="card" style="margin-top: 24px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                                <h3>ML Model Training Status</h3>
+                                <span class="badge badge-success">✅ Model Active</span>
+                            </div>
+                            <div class="kpi-grid" style="margin-bottom:20px;">
+                                <div class="card kpi-card" style="background:#F0FDF4;">
+                                    <div class="kpi-card-header"><span>VALIDATION ACCURACY</span><span>🎯</span></div>
+                                    <div class="kpi-card-value" style="color:var(--success-green);">91.4%</div>
+                                </div>
+                                <div class="card kpi-card" style="background:#EFF6FF;">
+                                    <div class="kpi-card-header"><span>TRAINING RECORDS</span><span>📊</span></div>
+                                    <div class="kpi-card-value">2,847</div>
+                                </div>
+                                <div class="card kpi-card" style="background:#FFF7ED;">
+                                    <div class="kpi-card-header"><span>LAST TRAINED</span><span>🕐</span></div>
+                                    <div class="kpi-card-value" style="font-size:22px;">2h ago</div>
+                                </div>
+
+                            </div>
+                            <div style="background:#F9FAFB; border-radius:12px; padding:20px;">
+                                <h3 style="margin-bottom:16px;">Training Pipeline Steps</h3>
+                                <div id="training-pipeline"></div>
+                            </div>
+                        </div>
+
+                        <!-- Data Preview -->
+                        <div class="card" id="upload-preview" style="margin-top: 24px; display: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <h3 id="upload-preview-title">DATA PREVIEW - sprint24.csv</h3>
+                                <div id="upload-preview-badges">
+                                    <span class="badge badge-success" style="margin-right: 8px;">✅ 9 rows loaded</span>
+                                    <span class="badge badge-warning" style="margin-right: 8px;">⚠️ 2 delayed</span>
+                                    <span class="badge badge-success">🟢 7 on time</span>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task</th>
+                                            <th>Complexity</th>
+                                            <th>SP</th>
+                                            <th class="sortable">Est ↕</th>
+                                            <th>Act</th>
+                                            <th>Delay</th>
+                                            <th>Team</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="preview-tbody"></tbody>
+                                </table>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+                                <div>
+                                    <button class="btn btn-secondary">Edit</button>
+                                    <button class="btn btn-secondary">Validate</button>
+                                </div>
+                                <button class="btn btn-primary" id="train-model-btn">Train Model with this Data</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: PREDICTION (Sprint 2 - US2, US4, US5) ======== -->
+                    <div id="view-prediction" class="view" style="display: none;">
+                        <div class="page-header" style="justify-content: flex-start; gap: 12px; align-items: center;">
+                            <h1 style="margin: 0;">AI EFFORT PREDICTION</h1>
+                            <span class="badge badge-warning">🤖 Beta</span>
+                        </div>
+
+                        <div class="tabs" style="display: flex; gap: 16px; border-bottom: 1px solid var(--border-color); margin-bottom: 24px;">
+                            <div class="tab active" style="padding: 12px 16px; border-bottom: 2px solid var(--primary-blue); font-weight: 600; cursor: pointer; color: var(--primary-blue);">SINGLE PREDICTION</div>
+                            <div class="tab" style="padding: 12px 16px; color: var(--text-secondary); cursor: pointer;">BULK PREDICTION (12)</div>
+                        </div>
+
+                        <div class="dashboard-grid-2">
+                            <!-- Input Form -->
+                            <div class="card">
+                                <form id="prediction-form">
+                                    <div class="input-group">
+                                        <label class="input-label">Task Name</label>
+                                        <input type="text" class="input-field" value="Analytics Dashboard" id="pred-name">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label class="input-label">Complexity</label>
+                                        <div style="display: flex; gap: 16px; margin-top: 4px;">
+                                            <label style="cursor: pointer;"><input type="radio" name="complexity" value="Low"> Low</label>
+                                            <label style="cursor: pointer;"><input type="radio" name="complexity" value="Medium"> Medium</label>
+                                            <label style="cursor: pointer;"><input type="radio" name="complexity" value="High" checked> High</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="dashboard-grid-2" style="gap: 16px;">
+                                        <div class="input-group" style="margin-bottom: 0;">
+                                            <label class="input-label">Story Points</label>
+                                            <select class="input-field" id="pred-sp" style="cursor: pointer;">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="5">5</option>
+                                                <option value="8" selected>8</option>
+                                                <option value="13">13</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-group" style="margin-bottom: 0;">
+                                            <label class="input-label">Dev Experience</label>
+                                            <select class="input-field" id="pred-exp" style="cursor: pointer;">
+                                                <option value="Junior" selected>Junior</option>
+                                                <option value="Intermediate">Intermediate</option>
+                                                <option value="Senior">Senior</option>
+                                                <option value="Expert">Expert</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group" style="margin-top: 16px;">
+                                        <label class="input-label">Team Consideration</label>
+                                        <select class="input-field" id="pred-team" style="cursor: pointer;">
+                                            <option value="All" selected>All Teams</option>
+                                            <option value="Alpha">Team Alpha</option>
+                                            <option value="Beta">Team Beta</option>
+                                            <option value="Gamma">Team Gamma</option>
+                                            <option value="Delta">Team Delta</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" id="run-prediction-btn" style="width: 100%; margin-top: 24px;">Predict Effort</button>
+                                </form>
+                            </div>
+
+                            <!-- Results Section -->
+                            <div style="display: flex; flex-direction: column; gap: 24px;">
+                                <div class="card" id="prediction-result" style="display: none; background: linear-gradient(to right, var(--white), var(--light-blue)); border: 1px solid var(--secondary-blue);">
+                                    <h3 style="margin-bottom: 16px; color: var(--primary-blue);">PREDICTION RESULT</h3>
+
+                                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                                        <div style="display: flex; align-items: center; gap: 12px; font-size: 18px;">
+                                            <span>⏰</span> <strong>Estimated Hours: <span id="pred-hours">47</span></strong>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <span>📊</span> Confidence: <span id="pred-confidence">78%</span>
+                                            <div style="flex: 1; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; max-width: 150px;">
+                                                <div id="pred-confidence-bar" style="width: 78%; height: 100%; background: var(--success-green);"></div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; color: var(--error-red); font-weight: 500;">
+                                            <span>⚠️</span> Risk Level: <span id="pred-risk">HIGH (87% delay prob)</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <span>👥</span> Recommended Team: <span id="pred-team-rec">Beta (82% match)</span>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; gap: 12px;">
+                                        <button class="btn btn-secondary" style="flex: 1;" id="view-similar-btn">View Similar Tasks</button>
+                                        <button class="btn btn-primary" style="flex: 1;">Add to Sprint</button>
+                                    </div>
+                                </div>
+
+                                <!-- Similar Historical Tasks (Sprint 2 - US5) -->
+                                <div class="card" id="similar-tasks" style="display: none;">
+                                    <h3>SIMILAR HISTORICAL TASKS</h3>
+                                    <div class="table-container mt-16">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Task</th>
+                                                    <th>Actual</th>
+                                                    <th>Team</th>
+                                                    <th>Variance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="similar-tasks-tbody">
+                                                <tr style="background: var(--light-blue);"><td style="font-weight: 500;">T-108 Current</td><td>-</td><td>Beta</td><td>-</td></tr>
+                                                <tr><td>T-98 Similar</td><td>72h</td><td>Beta</td><td style="color: var(--error-red); font-weight: 500;">+53%</td></tr>
+                                                <tr><td>T-86 Similar</td><td>44h</td><td>Beta</td><td style="color: var(--success-green); font-weight: 500;">-6%</td></tr>
+                                                <tr><td>T-82 Similar</td><td>48h</td><td>Beta</td><td style="color: var(--error-red); font-weight: 500;">+2%</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Team Recommendation (Sprint 2 - US4) -->
+                        <div class="card" style="margin-top:24px;">
+                            <h3>👥 AI Team Recommendations</h3>
+                            <p class="text-small" style="margin-bottom:16px;">Based on skills mapping, workload, and historical accuracy</p>
+                            <div id="team-recommendations-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: RISK (Sprint 2 - US3 + Sprint 3 - US2) ======== -->
+                    <div id="view-risk" class="view" style="display: none;">
+                        <div class="page-header">
+                            <div>
+                                <h1>RISK MANAGEMENT</h1>
+                                <p class="text-small">Monitor and mitigate project risks with AI-powered insights</p>
+                            </div>
+                        </div>
+
+                        <!-- Risk KPIs -->
+                        <div class="kpi-grid">
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>Total At Risk</span><span>⚠️</span></div>
+                                <div class="kpi-card-value">5</div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>High Priority</span><span>🔴</span></div>
+                                <div class="kpi-card-value">2</div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>Avg Delay</span><span>⏱️</span></div>
+                                <div class="kpi-card-value">1.4d <span class="trend-down">↑ +8%</span></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>Mitigation Rate</span><span>📈</span></div>
+                                <div class="kpi-card-value">87% <span class="trend-up">↑ 5%</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Risk Distribution + Risk Factors -->
+                        <div class="dashboard-grid-2" style="margin-bottom:24px;">
+                            <div class="card">
+                                <h3>Risk Distribution</h3>
+                                <div style="display:flex; justify-content:center; margin:24px 0;">
+                                    <canvas id="riskDonutChart" width="180" height="180"></canvas>
+                                </div>
+                                <div style="display:flex; flex-direction:column; gap:8px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+                                        <span><span style="color:#EF4444;">●</span> High Risk</span><strong>5</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+                                        <span><span style="color:#F59E0B;">●</span> Medium Risk</span><strong>12</strong>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px;">
+                                        <span><span style="color:#10B981;">●</span> Low Risk</span><strong>23</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <h3>Risk Factors Summary</h3>
+                                <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;" id="risk-factors-list"></div>
+                            </div>
+                        </div>
+
+                        <!-- At-Risk Tasks Table -->
+                        <div class="card" style="margin-bottom:24px;">
+                            <h3>AI-Risk Tasks</h3>
+                            <p class="text-small" style="margin-bottom:16px;">Tasks that are delayed or likely to exceed estimated time</p>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Task</th>
+                                            <th>Sprint</th>
+                                            <th>Team</th>
+                                            <th>Estimated</th>
+                                            <th>Actual</th>
+                                            <th>Delay</th>
+                                            <th>Risk</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="risk-tasks-detailed-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- AI Mitigation Recommendations -->
+                        <div class="card">
+                            <h3>AI Mitigation Recommendations</h3>
+                            <p class="text-small" style="margin-bottom:16px;">AI-generated plans based on risk scoring and historical data</p>
+                            <div id="mitigation-list" style="display:flex; flex-direction:column; gap:12px;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: TEAM (Sprint 3 - US1) ======== -->
+                    <div id="view-team" class="view" style="display: none;">
+                        <div class="page-header">
+                            <div>
+                                <h1>TEAM PERFORMANCE DASHBOARD</h1>
+                                <p class="text-small">Optimize allocations utilizing AI recommendations.</p>
+                            </div>
+                        </div>
+                        <div class="kpi-grid" id="team-kpis"></div>
+
+                        <!-- Velocity Chart -->
+                        <div class="dashboard-grid-2" style="margin-bottom:24px;">
+                            <div class="card" style="grid-column:span 2;">
+                                <h3>Team Velocity — Last 6 Sprints</h3>
+                                <canvas id="velocityChart" height="90"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Team Cards -->
+                        <div class="kpi-grid" id="team-cards-grid"></div>
+
+                        <!-- All Teams Table -->
+                        <div class="dashboard-grid-2">
+                            <div class="card" style="grid-column: span 2;">
+                                <h3>All Teams</h3>
+                                <div class="table-container mt-16">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Team</th>
+                                                <th>Lead</th>
+                                                <th>Velocity</th>
+                                                <th>Accuracy</th>
+                                                <th>Completion Rate</th>
+                                                <th>Trend</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="team-tbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: REPORTS (Sprint 3 - US3, US4) ======== -->
+                    <div id="view-reports" class="view" style="display: none;">
+                        <div class="page-header">
+                            <div>
+                                <h1>REPORTS & ANALYTICS</h1>
+                                <p class="text-small">Deep dive into estimation accuracy, sprint progress & performance metrics.</p>
+                            </div>
+                            <div class="header-actions">
+                                <button class="btn btn-secondary" id="export-pdf-btn">📄 Export PDF</button>
+                                <button class="btn btn-primary" id="export-csv-btn">📊 Export CSV</button>
+                            </div>
+                        </div>
+
+
+
+                        <!-- Analytics KPIs -->
+                        <div class="kpi-grid">
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>AI ESTIMATION ERROR</span><span>🎯</span></div>
+                                <div class="kpi-card-value">-2.3% <span class="trend-up">↑ Better</span></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>TOTAL HOURS TRACKED</span><span>⏰</span></div>
+                                <div class="kpi-card-value">1,965h</div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>SPRINTS ANALYZED</span><span>📋</span></div>
+                                <div class="kpi-card-value">6</div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="kpi-card-header"><span>AVG ON-TIME RATE</span><span>✅</span></div>
+                                <div class="kpi-card-value">86% <span class="trend-up">↑ 4%</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div class="dashboard-grid-2" style="margin-bottom:24px;">
+                            <div class="card">
+                                <h3>Sprint Burndown — Sprint 3</h3>
+                                <canvas id="burndownChart" height="180"></canvas>
+                            </div>
+                            <div class="card">
+                                <h3>AI vs Manual Estimation Error %</h3>
+                                <canvas id="errorChart" height="180"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Sprint Progress Visualization (Sprint 3 - US3) -->
+                        <div class="card" style="margin-bottom:24px;">
+                            <h3>Sprint Progress Overview</h3>
+                            <p class="text-small" style="margin-bottom:20px;">Story point completion across all active sprints</p>
+                            <div id="sprint-progress-bars" style="display:flex; flex-direction:column; gap:16px;"></div>
+                        </div>
+
+                        <!-- Accuracy Table -->
+                        <div class="card">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                                <h3>ESTIMATION ACCURACY PER SPRINT</h3>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn btn-secondary btn-sm" id="report-export-pdf">📄 PDF</button>
+                                    <button class="btn btn-secondary btn-sm" id="report-export-csv">📊 CSV</button>
+                                </div>
+                            </div>
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sprint</th>
+                                            <th>Manual Est. (h)</th>
+                                            <th>AI Predicted (h)</th>
+                                            <th>Actual (h)</th>
+                                            <th>Manual Error %</th>
+                                            <th>AI Error %</th>
+                                            <th>Winner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="accuracy-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ======== VIEW: SETTINGS ======== -->
+                    <div id="view-settings" class="view" style="display: none;">
+                        <div class="page-header">
+                            <div>
+                                <h1>SETTINGS</h1>
+                                <p class="text-small">Manage your account, preferences, and system configuration.</p>
+                            </div>
+                        </div>
+
+                        <!-- Connection & System Status -->
+                        <div class="card settings-section" id="settings-conn-banner" style="border:1.5px solid #A7F3D0; background:linear-gradient(135deg,#F0FDF4,#DCFCE7); transition: all 0.4s ease;">
+                            <div class="settings-section-header">
+                                <span class="settings-icon" style="background:linear-gradient(135deg,#D1FAE5,#A7F3D0);">🔌</span>
+                                <h3>Connection &amp; System Status</h3>
+                                <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+                                    <span id="conn-status-dot" style="width:10px;height:10px;border-radius:50%;background:#D1D5DB;display:inline-block;transition:background 0.3s;"></span>
+                                    <span id="conn-status-text" style="font-size:13px;font-weight:600;color:var(--text-secondary);">Checking...</span>
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                                <div style="background:rgba(255,255,255,0.6);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.8);">
+                                    <div style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">🗄️ Database (MongoDB)</div>
+                                    <div id="conn-db-status" style="font-size:14px;"><span style="color:#D1D5DB;">● Checking...</span></div>
+                                    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">mongodb://localhost:27017</div>
+                                </div>
+                                <div style="background:rgba(255,255,255,0.6);border-radius:12px;padding:16px;border:1px solid rgba(255,255,255,0.8);">
+                                    <div style="font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">⚡ API Server</div>
+                                    <div id="conn-api-status" style="font-size:14px;"><span style="color:#D1D5DB;">● Checking...</span></div>
+                                    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">localhost:3000/api</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Profile Settings -->
+                        <div class="card settings-section">
+                            <div class="settings-section-header"><span class="settings-icon">👤</span><h3>Profile Settings</h3></div>
+                            <div class="settings-grid">
+                                <div class="input-group">
+                                    <label class="input-label">First Name</label>
+                                    <input type="text" class="input-field" id="s-first-name" value="Sarah">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Last Name</label>
+                                    <input type="text" class="input-field" id="s-last-name" value="Chen">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Email</label>
+                                <input type="email" class="input-field" id="s-email" value="sarah.chen@company.com">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Role</label>
+                                <input type="text" class="input-field" id="s-role" value="Product Manager" readonly style="background:#F9FAFB; color:var(--text-secondary);">
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="save-profile-btn">Save Changes</button>
+                        </div>
+
+                        <!-- Notification Preferences -->
+                        <div class="card settings-section">
+                            <div class="settings-section-header"><span class="settings-icon">🔔</span><h3>Notification Preferences</h3></div>
+                            <div class="settings-toggle-list">
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">Task Risk Alerts</div>
+                                        <div class="settings-toggle-desc">Get notified when tasks are at risk</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="notif-risk" checked><span class="toggle-slider"></span></label>
+                                </div>
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">Sprint Updates</div>
+                                        <div class="settings-toggle-desc">Receive updates on sprint progress</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="notif-sprint" checked><span class="toggle-slider"></span></label>
+                                </div>
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">AI Predictions</div>
+                                        <div class="settings-toggle-desc">Notifications for new predictions</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="notif-ai"><span class="toggle-slider"></span></label>
+                                </div>
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">Weekly Reports</div>
+                                        <div class="settings-toggle-desc">Receive weekly performance reports</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="notif-weekly" checked><span class="toggle-slider"></span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security -->
+                        <div class="card settings-section">
+                            <div class="settings-section-header"><span class="settings-icon">🔒</span><h3>Security</h3></div>
+                            <div class="input-group">
+                                <label class="input-label">Current Password</label>
+                                <input type="password" class="input-field" id="s-cur-pass" placeholder="Enter current password">
+                            </div>
+                            <div class="settings-grid">
+                                <div class="input-group">
+                                    <label class="input-label">New Password</label>
+                                    <input type="password" class="input-field" id="s-new-pass" placeholder="Enter new password">
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Confirm New Password</label>
+                                    <input type="password" class="input-field" id="s-conf-pass" placeholder="Confirm new password">
+                                </div>
+                            </div>
+                            <p id="pass-success-msg" style="color:var(--success-green); font-size:13px; display:none; margin-bottom:12px;">✓ Password updated successfully.</p>
+                            <p id="pass-error-msg" style="color:var(--error-red); font-size:13px; display:none; margin-bottom:12px;">⚠️ Passwords do not match.</p>
+                            <button class="btn btn-primary btn-sm" id="update-pass-btn">Update Password</button>
+                        </div>
+
+                        <!-- AI Model Configuration -->
+                        <div class="card settings-section">
+                            <div class="settings-section-header"><span class="settings-icon">🤖</span><h3>AI Model Configuration</h3></div>
+                            <div class="input-group">
+                                <label class="input-label">Model Version</label>
+                                <input type="text" class="input-field" value="v2.5 (Latest)" readonly style="background:#F9FAFB; color:var(--text-secondary);">
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Minimum Confidence Threshold</label>
+                                <select class="input-field" id="s-threshold">
+                                    <option value="60">60% (Low)</option>
+                                    <option value="70" selected>70% (Medium)</option>
+                                    <option value="80">80% (High)</option>
+                                    <option value="90">90% (Very High)</option>
+                                </select>
+                            </div>
+                            <div class="settings-toggle-list" style="margin-bottom:20px;">
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">Auto-retrain Model</div>
+                                        <div class="settings-toggle-desc">Automatically retrain with new data</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="s-auto-train" checked><span class="toggle-slider"></span></label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="save-ai-config-btn">Save Configuration</button>
+                        </div>
+
+                        <!-- System Preferences -->
+                        <div class="card settings-section">
+                            <div class="settings-section-header"><span class="settings-icon">⚙️</span><h3>System Preferences</h3></div>
+                            <div class="input-group">
+                                <label class="input-label">Timezone</label>
+                                <select class="input-field" id="s-timezone">
+                                    <option value="PST">Pacific Time (PST)</option>
+                                    <option value="EST">Eastern Time (EST)</option>
+                                    <option value="IST" selected>India Standard Time (IST)</option>
+                                    <option value="UTC">UTC</option>
+                                    <option value="GMT">GMT</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">Date Format</label>
+                                <select class="input-field" id="s-dateformat">
+                                    <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            <div class="settings-toggle-list" style="margin-bottom:20px;">
+                                <div class="settings-toggle-item">
+                                    <div>
+                                        <div class="settings-toggle-title">Dark Mode</div>
+                                        <div class="settings-toggle-desc">Enable dark theme</div>
+                                    </div>
+                                    <label class="toggle-switch"><input type="checkbox" id="s-darkmode"><span class="toggle-slider"></span></label>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm" id="save-prefs-btn">Save Preferences</button>
+                        </div>
+
+                        <!-- Danger Zone -->
+                        <div class="card settings-section" style="border:1.5px solid #FCA5A5; background:linear-gradient(135deg,#FFF5F5,#FFF);">
+                            <div class="settings-section-header"><span class="settings-icon" style="background:#FEE2E2;">⚠️</span><h3 style="color:var(--error-red);">Danger Zone</h3></div>
+                            <p class="text-small" style="margin-bottom:20px;">Irreversible actions that affect your account and data.</p>
+                            <div style="display:flex; gap:12px;">
+                                <button class="btn btn-secondary btn-sm" id="clear-data-btn" style="border-color:#FCA5A5; color:var(--error-red);">Clear All Data</button>
+                                <button class="btn btn-sm" id="delete-account-btn" style="background:var(--error-red); color:white; border:none; padding:8px 20px; border-radius:10px; font-weight:600; cursor:pointer;">Delete Account</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- end main-content -->
+            </div><!-- end main-wrapper -->
+        </div><!-- end app-layout -->
+    </div><!-- end app -->
+
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>
